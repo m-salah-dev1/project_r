@@ -2,26 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
-
-
-
-
-
-// String  _basicAuth = 'Basic' + 
-// base64Encode(utf8.encode('mo:123'));
-
-//  Map<String , String> myheaders = {
-//   'authorization' : _basicAuth
-
-//  };
-
-
-
-
-
-
-
-
 class Crud {
   final Duration timeoutDuration = const Duration(seconds: 15);
 

@@ -60,7 +60,6 @@ class _AddNotesState extends ConsumerState<AddNotes> {
     if (!mounted) return;
 
     if (response != null && response["status"] == "success") {
-      // Navigator.of(context).pushReplacementNamed("home"); 
       ref.invalidate(notesProvider);
       Navigator.pop(context);
     } else {

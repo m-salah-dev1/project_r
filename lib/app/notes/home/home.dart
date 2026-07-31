@@ -16,72 +16,71 @@ class Home extends ConsumerWidget {
     final crud = ref.read(cureprovider);
 
     return Scaffold(
-      
-          appBar: AppBar(
-                  title: const Text("Home"),
-                  actions: [
-                    IconButton(
-                      onPressed: () {
-                        sharedPref.clear();
-                        ref.invalidate(notesProvider);
-                        Navigator.of(context).pushNamedAndRemoveUntil(
-                          "login_view",
-                          (route) => false,
-                        );
-                      },
-                      icon: const Icon(Icons.exit_to_app),
-                    ),], ),
-          floatingActionButton: FloatingActionButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, "add");},
-                  child: const Icon(Icons.add),
-                      ),
-          body: notesAsync.when(
-                      loading: () =>const Center(child: CircularProgressIndicator()),
-                      error: (e, _) =>Center(child: Text(e.toString())),
-                      data: (snapshot) {
-                        final data = snapshot;
+      appBar: AppBar(
+        title: const Text("Home"),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await sharedPref.clear();
+              ref.invalidate(notesProvider);
+              if (!context.mounted) return;
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil("login_view", (route) => false);
+            },
+            icon: const Icon(Icons.exit_to_app),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, "add");
+        },
+        child: const Icon(Icons.add),
+      ),
+      body: notesAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text(e.toString())),
+        data: (snapshot) {
+          final data = snapshot;
 
-                        if (data.isEmpty) {
-                          return const Center(
-                            child: Text(
-                              "No notes found",
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 18,
-                              ),
-                            ),
-                          );
-                        }
+          if (data.isEmpty) {
+            return const Center(
+              child: Text(
+                "No notes found",
+                style: TextStyle(color: Colors.red, fontSize: 18),
+              ),
+            );
+          }
 
-                    return ListView.builder(
-                            itemCount: data.length,
-                            itemBuilder: (context, i) {
-                                  final note = NoteModel.fromJson(data[i]);
-                                  return Cardnote(
-                                    m: note,
-                                    onDelete: () async {
-                                          final response = await crud.postRequest(
-                                            linkDeleteNote,
-                                            { 
-                                              "id": note.notesId.toString(),
-                                              "imagename": note.notesImage, 
-                                              "userid": sharedPref.getString("id"),
-
-                                              },
-                                                );
-                                          if (response != null && response["status"] == "success") {
-                                            ref.invalidate(notesProvider);
-                                                  }
-                                                },
-                                    ontap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => EditNotes(notes: note),
-                                        ),);},
-                                    onEdit: () {},
-                                  ); }); },),
+          return ListView.builder(
+            itemCount: data.length,
+            itemBuilder: (context, i) {
+              final note = NoteModel.fromJson(data[i]);
+              return Cardnote(
+                m: note,
+                onDelete: () async {
+                  final response = await crud.postRequest(linkDeleteNote, {
+                    "id": note.notesId.toString(),
+                    "imagename": note.notesImage,
+                    "userid": sharedPref.getString("id"),
+                  });
+                  if (response != null && response["status"] == "success") {
+                    ref.invalidate(notesProvider);
+                  }
+                },
+                ontap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => EditNotes(notes: note)),
+                  );
+                },
+                onEdit: () {},
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
