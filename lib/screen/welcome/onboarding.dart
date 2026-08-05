@@ -1,8 +1,8 @@
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:project_r/screen/welcom/onboarding_notifier.dart';
-import 'package:project_r/screen/welcom/widget.dart';
+import 'package:project_r/screen/welcome/onboarding_notifier.dart';
+import 'package:project_r/screen/welcome/widget.dart';
 
 class Onboarding extends ConsumerStatefulWidget {
   const Onboarding({super.key});

@@ -11,7 +11,7 @@ import 'package:project_r/app/notes/edit/edit.dart';
 import 'package:project_r/firebase_options.dart';
 import 'package:project_r/screen/home/home.dart';
 import 'package:project_r/model/notemodel.dart';
-import 'package:project_r/screen/welcom/onboarding.dart';
+import 'package:project_r/screen/welcome/onboarding.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 late SharedPreferences sharedPref;
