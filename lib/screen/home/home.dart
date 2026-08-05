@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project_r/app/notes/edit/edit.dart';
-import 'package:project_r/app/notes/home/home_provide.dart';
+import 'package:project_r/screen/home/home_provide.dart';
 import 'package:project_r/components/cardnote.dart';
 import 'package:project_r/constant/linkapi.dart';
 import 'package:project_r/model/notemodel.dart';
@@ -60,11 +60,12 @@ class Home extends ConsumerWidget {
               return Cardnote(
                 m: note,
                 onDelete: () async {
+                  final token = sharedPref.getString("token");
+
                   final response = await crud.postRequest(linkDeleteNote, {
                     "id": note.notesId.toString(),
                     "imagename": note.notesImage,
-                    "userid": sharedPref.getString("id"),
-                  });
+                  }, token: token);
                   if (response != null && response["status"] == "success") {
                     ref.invalidate(notesProvider);
                   }
@@ -75,7 +76,12 @@ class Home extends ConsumerWidget {
                     MaterialPageRoute(builder: (_) => EditNotes(notes: note)),
                   );
                 },
-                onEdit: () {},
+                onEdit: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => EditNotes(notes: note)),
+                  );
+                },
               );
             },
           );

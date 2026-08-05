@@ -5,7 +5,13 @@ class CustTextForm extends StatelessWidget {
     final String hint;
     final String? Function(String?) valid;    
     final TextEditingController mycontroller;         //!  for save data
-    const CustTextForm({super.key, required this.hint , required this.mycontroller, required this.valid});
+    final bool hiden ;
+    const CustTextForm({ 
+        super.key,
+        required this.hint ,
+        required this.mycontroller, 
+        required this.valid, 
+        this.hiden = false});
 
 
  @override
@@ -14,6 +20,8 @@ class CustTextForm extends StatelessWidget {
         return Container(
           margin: EdgeInsets.only(bottom: 10),
           child: TextFormField( 
+            
+            obscureText: hiden,
             validator: valid,
             controller: mycontroller ,
             decoration: InputDecoration( 

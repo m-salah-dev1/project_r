@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
+
 class Crud {
   final Duration timeoutDuration = const Duration(seconds: 15);
-
 
   Future<dynamic> getRequest(String url) async {
     try {
@@ -20,13 +20,12 @@ class Crud {
     }
   }
 
-
-
-
-  Future<dynamic> postRequest(String url, Map data) async {
+  Future<dynamic> postRequest(String url, Map data , {String? token}) async {
     try {
-      final response = await http.post(Uri.parse(url), body: _safeMap(data))
-          .timeout(timeoutDuration);
+      final response = await http.post( 
+          Uri.parse(url),
+          headers: {if(token != null) "Authorization":"Bearer $token"},
+          body: _safeMap(data)).timeout(timeoutDuration);
 
       return _handleResponse(response);
     } on SocketException {
@@ -39,13 +38,15 @@ class Crud {
   // =======================
   // POST REQUEST WITH FILE (ADD)
   // =======================
-  Future<dynamic> postRequestWithFile(
-    String url,
-    Map data,
-    File file,
-  ) async {
+  Future<dynamic> postRequestWithFile(String url, Map data, File file, {String? token} ) async {
     try {
       var request = http.MultipartRequest("POST", Uri.parse(url));
+
+      if (token != null) {
+        request.headers.addAll({ 
+          "Authorization": "Bearer $token"
+        });
+      }
 
       // file
       request.files.add(
@@ -73,45 +74,39 @@ class Crud {
   // =======================
   // POST REQUEST WITH OPTIONAL FILE (EDIT)
   // =======================
- Future<dynamic> postRequestWithOptionalFile(String url, Map data, {File? file,}) async {
-  
-  try {
-    var request = http.MultipartRequest("POST", Uri.parse(url));
+  Future<dynamic> postRequestWithOptionalFile( String url, Map data, String? token, { File? file} ) async {
+    try {
+      var request = http.MultipartRequest("POST", Uri.parse(url)); 
+       if (token != null) {
+      request.headers.addAll({
+        "Authorization": "Bearer $token",
+      }); }
 
-    // fields
-    request.fields.addAll(
-      data.map((k, v) => MapEntry(k.toString(), v.toString())),
-    );
-
-    // file فقط إذا موجود
-    if (file != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          "file",
-          file.path,
-          filename: basename(file.path),
-        ),
+      // fields
+      request.fields.addAll(
+        data.map((k, v) => MapEntry(k.toString(), v.toString())),
       );
+
+      // file فقط إذا موجود
+      if (file != null) {
+        request.files.add( await http.MultipartFile.fromPath(
+            "file", file.path,  filename: basename(file.path),
+          ),
+        );
+      }
+
+      var streamed = await request.send();
+      var response = await http.Response.fromStream(streamed);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+
+      return {"status": "fail", "message": "server error"};
+    } catch (e) {
+      return {"status": "fail", "message": e.toString()};
     }
-
-    var streamed = await request.send();
-    var response = await http.Response.fromStream(streamed);
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    }
-
-    return {
-      "status": "fail",
-      "message": "server error",
-    };
-  } catch (e) {
-    return {
-      "status": "fail",
-      "message": e.toString(),
-    };
   }
-}
 
   // =======================
   // RESPONSE HANDLER
@@ -140,9 +135,6 @@ class Crud {
   // ERROR FORMAT
   // =======================
   Map<String, dynamic> _error(String msg) {
-    return {
-      "status": "fail",
-      "message": msg,
-    };
+    return {"status": "fail", "message": msg};
   }
 }

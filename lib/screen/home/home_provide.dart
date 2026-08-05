@@ -11,18 +11,13 @@ final notesProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
 
   final prefs = await SharedPreferences.getInstance();
 
-  final userid = prefs.getString("id");
+  final token = prefs.getString("token");
 
-  debugPrint("CURRENT USER ID = $userid");
+  if(token == null || token.isEmpty) { return []; }
 
-  if (userid == null || userid.isEmpty) {
-    return [];
-  }
+  final response = await c.postRequest(linkViewNotes, {},token: token );
 
-  final response = await c.postRequest(linkViewNotes, {"id": userid});
-
-    debugPrint("SERVER RESPONSE = $response");
-
+  debugPrint("SERVER RESPONSE = $response");
 
   if (response == null ||
       response["status"] != "success" ||

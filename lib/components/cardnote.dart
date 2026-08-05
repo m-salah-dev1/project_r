@@ -20,7 +20,7 @@ class Cardnote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: ontap,
+      
       child: Card(
         child: Row(
           children: [

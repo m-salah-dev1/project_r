@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project_r/app/auth/login/login_controller.dart';
 import 'package:project_r/components/customtextform.dart';
 import 'package:project_r/components/valid.dart';
-
+import 'package:project_r/constant/authstate.dart';
 
 class LoginView extends ConsumerStatefulWidget {
   const LoginView({super.key});
@@ -12,12 +12,7 @@ class LoginView extends ConsumerStatefulWidget {
   ConsumerState<LoginView> createState() => _LoginViewState();
 }
 
-
-
-
-
 class _LoginViewState extends ConsumerState<LoginView> {
-
   final email = TextEditingController();
   final password = TextEditingController();
   final formKey = GlobalKey<FormState>();
@@ -31,18 +26,17 @@ class _LoginViewState extends ConsumerState<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    
-    final isLoading = ref.watch(authControllerProvider);
+    final authState = ref.watch(authControllerProvider);
 
     return Scaffold(
-      body: isLoading
+      body: authState.status == Authstatus.loading
           ? const Center(child: CircularProgressIndicator())
           : Form(
               key: formKey,
               child: Column(
                 children: [
-                  Image.asset("images/p7.png", width: 200),
-
+                  Image.asset("images/notepad.gif", width: 200),
+                  SizedBox(height: 10,),
                   CustTextForm(
                     hint: "email",
                     mycontroller: email,
@@ -53,6 +47,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
 
                   CustTextForm(
                     hint: "password",
+                    hiden: true,
                     mycontroller: password,
                     valid: (val) {
                       return validIput(val!, 5, 20);
@@ -63,27 +58,36 @@ class _LoginViewState extends ConsumerState<LoginView> {
                     onPressed: () async {
                       if (!formKey.currentState!.validate()) return;
 
-                      final controller =
-                          ref.read(authControllerProvider.notifier);
+                      final controller = ref.read(authControllerProvider.notifier,);
 
-                      final res =
-                          await controller.login(email.text, password.text);
+                      await controller.login(email.text,password.text,);
 
                       if (!context.mounted) return;
 
-                      if (res?["status"] == "success") {
+                      final state = ref.read(authControllerProvider);
+
+                      if (state.status == Authstatus.success) {
                         Navigator.pushReplacementNamed(context, "home");
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content:
-                                Text("Password or Email is not valid"),
+                          SnackBar(
+                            content:  
+                                Text(state.message ?? "login Failed"),
                           ),
                         );
                       }
                     },
                     child: const Text("Login"),
                   ),
+                  const SizedBox(height: 10),
+
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed("forgetPassword");
+                    },
+                    child: Text("Forget Password ?..."),
+                  ),
+
                   const SizedBox(height: 10),
 
                   InkWell(

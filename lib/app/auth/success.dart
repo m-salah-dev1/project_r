@@ -11,9 +11,8 @@ class _SuccessState extends State<Success> {
   @override
   Widget build(BuildContext context) {
     return Scaffold( 
-       
     body: 
-       Column ( 
+      Column ( 
         mainAxisAlignment: MainAxisAlignment.center,
             children: [ 
                 Center(

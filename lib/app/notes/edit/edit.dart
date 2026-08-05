@@ -5,11 +5,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:project_r/app/notes/edit/provider.dart';
 
-import 'package:project_r/app/notes/home/home_provide.dart';
+import 'package:project_r/screen/home/home_provide.dart';
 import 'package:project_r/components/crud.dart';
 import 'package:project_r/components/customtextform.dart';
 import 'package:project_r/components/valid.dart';
 import 'package:project_r/constant/linkapi.dart';
+import 'package:project_r/main.dart';
 import 'package:project_r/model/notemodel.dart';
 
 class EditNotes extends ConsumerStatefulWidget {
@@ -56,11 +57,14 @@ class _EditNotesState extends ConsumerState<EditNotes> {
     ref.read(editNoteNotifier.notifier).setLoading(true);
 
     final noteId = widget.notes.notesId.toString();
+    final token = sharedPref.getString("token");
 
     final data = {
       "title": title.text,
       "content": content.text,
       "id": noteId,
+      "imagename": widget.notes.notesImage
+      
     };
 
     Map<String, dynamic>? response;
@@ -70,13 +74,18 @@ class _EditNotesState extends ConsumerState<EditNotes> {
         linkEditNote,
         data,
         imageFile,
+        token:token
+        
       );
     } else {
       response = await crud.postRequest(
         linkEditNote,
         data,
+        token: token
+        
       );
     }
+    debugPrint("EDIT RESPONSE = $response");
 
     ref.read(editNoteNotifier.notifier).setLoading(false);
 
@@ -85,7 +94,7 @@ class _EditNotesState extends ConsumerState<EditNotes> {
     if (response != null && response["status"] == "success") {
       ref.invalidate(notesProvider);
 
-      // reset state (مهم جداً)
+      // reset state 
       ref.read(editNoteNotifier.notifier).reset();
 
       Navigator.pop(context);
@@ -93,8 +102,8 @@ class _EditNotesState extends ConsumerState<EditNotes> {
       AwesomeDialog(
         context: context,
         dialogType: DialogType.error,
-        title: "فشل العملية",
-        desc: response?["message"] ?? "حدث خطأ غير معروف",
+        title: " Operation failed",
+        desc: response?["message"] ?? "An unknown error occurred",
       ).show();
     }
   }
